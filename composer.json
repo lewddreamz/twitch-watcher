@@ -1,0 +1,10 @@
+{
+    "autoload": {
+        "psr-4": {"TwitchWatcher\\": "src"}
+    },
+    "require": {
+        "ml/json-ld": "^1.2",
+        "symfony/http-client": "^6.4",
+        "phpmailer/phpmailer": "^6.9"
+    }
+}
