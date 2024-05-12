@@ -7,7 +7,7 @@ use Exception;
 use LogicException;
 use TwitchWatcher\Collections\ModelCollection;
 use TwitchWatcher\Exceptions\NotInitializedException;
-use TwitchWatcher\Data\DataManager;
+use TwitchWatcher\Data\DataManager; 
 class Application
 {
     private DataManager $dm;

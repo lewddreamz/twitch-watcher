@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace TwitchWatcher;
+namespace TwitchWatcher\Data;
 
 use SQLite3;
 use SQLite3Result;

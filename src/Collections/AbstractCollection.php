@@ -6,7 +6,7 @@ namespace TwitchWatcher\Collections;
 
 use Traversable;
 
-abstract class Collection implements Traversable
+abstract class AbstractCollection implements Traversable
 {
     private $items;
 }

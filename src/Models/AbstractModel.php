@@ -19,4 +19,10 @@ class AbstractModel implements ModelInterface
     {
         return self::$dataInfo;
     }
+    
+    public function fill(array $attributes) : true
+    {
+        
+        return true;
+    }
 }
