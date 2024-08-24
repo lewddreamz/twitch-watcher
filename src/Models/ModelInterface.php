@@ -4,6 +4,5 @@ namespace TwitchWatcher\Models;
 
 interface ModelInterface
 {
-    public abstract function fill(array $attributes): true
-
+    public function fill(array $attributes): true;
 }

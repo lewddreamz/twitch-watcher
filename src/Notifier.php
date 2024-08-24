@@ -5,7 +5,7 @@ namespace TwitchWatcher;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
+use TwitchWatcher\Data\DataManager;
 class Notifier
 {
     private DataManager $dm;

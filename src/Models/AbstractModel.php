@@ -11,18 +11,15 @@ use TwitchWatcher\Data\EntityManager;
 
 class AbstractModel implements ModelInterface
 {
-    private static DataInfo $dataInfo;
+    private array $attributes;
 
-   
-
-    public static function getDataInfo(): DataInfo
-    {
-        return self::$dataInfo;
-    }
-    
     public function fill(array $attributes) : true
     {
-        
         return true;
+    }
+
+    public function getAttributes()
+    {
+        return $this->attributes;
     }
 }

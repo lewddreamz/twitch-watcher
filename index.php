@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-use TwitchWatcher\Application;
+use TwitchWatcher\App\Application;
 
 require 'vendor/autoload.php';
 
@@ -11,9 +11,9 @@ $config = [
         'verbose' => true,
         'debug' => true
     ],
+    'db_filename' => 'db.sq3',
 ];
 
 $app = new Application($config);
 
-$app->init(__DIR__ . '/db.sq3');
 $app->run();

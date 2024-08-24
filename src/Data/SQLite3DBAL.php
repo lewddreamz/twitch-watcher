@@ -6,7 +6,7 @@ namespace TwitchWatcher\Data;
 use SQLite3;
 use SQLite3Result;
 
-class DataManager
+class SQLite3DBAL implements DBAL
 {
     private SQLite3 $db;
     private string $filename;
@@ -43,7 +43,7 @@ class DataManager
         return true;
     }
 
-    public function select(string $table, string $columns, string $condition = null) : array|false {
+    public function select(string $table, string $columns, string $condition = null) : array {
         $query = "SELECT $columns FROM $table";
         if (!is_null($condition)) {
             $query .= " WHERE $condition";
@@ -57,7 +57,7 @@ class DataManager
             }
             return $collection;
         } else {
-            return false;
+            return [];
         }
     }
 
@@ -114,7 +114,7 @@ class DataManager
         '{$vod['url']}', '{$vod['twitch_id']}', '{$vod['streamer_id']}')");
     }
 
-    public function inTable(string $table, string $cond, string $value): bool {
+    public function exists(string $table, string $cond, string $value): bool {
         $result = $this->db->query("SELECT EXISTS(SELECT * FROM $table WHERE $cond = '$value')");
         if ($result) {
             $array = $result->fetchArray(SQLITE3_NUM);

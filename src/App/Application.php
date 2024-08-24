@@ -1,34 +1,34 @@
 <?php
 declare(strict_types=1);
 
-namespace TwitchWatcher;
+namespace TwitchWatcher\App;
 
 use Exception;
 use LogicException;
 use TwitchWatcher\Collections\ModelCollection;
 use TwitchWatcher\Exceptions\NotInitializedException;
-use TwitchWatcher\Data\DataManager; 
+use TwitchWatcher\Data\DataMapper; 
+use TwitchWatcher\Http;
+use TwitchWatcher\Logger;
+use TwitchWatcher\App\Registry;
 class Application
 {
-    private DataManager $dm;
+    private DataMapper $dm;
     private Http $http;
     public static ?Logger $logger = null;
 
     private static ?self $instance = null;
-    private array $config;
+    public Config $config;
 
     public function __construct(array $config) 
     {
         $this->setConfig($config);
         self::$instance = $this;
+        $reg = Registry::instance();
+        $this->dm = $reg->getDataMapper();
+        $this->http = $reg->getHttp();
     }
     
-    public static function create(array $config): self 
-    {
-        self::$instance = new self($config);
-        return self::$instance;        
-    }
-
     public static function instance(): self
     {
         if (self::$instance === null) {
@@ -38,7 +38,7 @@ class Application
         }
     }
 
-    public static function config(): array
+    public static function config(): Config
     {
         if (self::$instance !== null) {
             return self::$instance->config;
@@ -47,6 +47,10 @@ class Application
         }
     }
 
+    public static function getRegistry(): Registry
+    {
+        return Registry::instance();
+    }
     public static function getLogger(): Logger
     {
         if (self::$logger === null) {
@@ -56,14 +60,9 @@ class Application
             return self::$logger;
         }
     }
-    public function setConfig(array $config): void
+    public function setConfig(array $options): void
     {
-        $this->config = $config;
-    }
-    public function init(string $filename) : void
-    {
-        $this->dm = new DataManager($filename);
-        $this->http = new Http;
+        $this->config = new Config($options);
     }
 
     public function run() : void
@@ -71,8 +70,7 @@ class Application
         $log = self::getLogger();
         $log->info("Начинаем запрос водов");
         $log->info("Получаем список стримеров...");
-        $collection = new ModelCollection;
-        echo $collection->a;
+
         $streamers = $this->getStreamers();
         foreach($streamers as $streamer) {
             $log->info("Ищем новые воды для стримера {$streamer['name']}");
