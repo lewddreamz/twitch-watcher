@@ -9,7 +9,8 @@ use TwitchWatcher\Models\ModelInterface;
 
 class DataMapper
 {
-    private string $table, $column, $value;
+    private string $table, $column;
+    private mixed $value;
     public function __construct(private DBAL $dm)
     {
         
@@ -42,18 +43,18 @@ class DataMapper
         return $this;
     }
 
-    public function one(): ModelInterface
+    public function one(ModelInterface $model): ModelInterface
     {
         $result = $this->dm->select($this->table, $this->column, "{$this->column}={$this->value}");
-
-        $this->model->fill($result);
-
-        return $this->model;
+        $model->fill($result);
+        return $model;
     }
 
-    public function collection(): ModelCollectionInterface
+    public function collection(ModelCollectionInterface $modelCollection): ModelCollectionInterface
     {
-
+        $res = $this->dm->select($this->table, $this->column, "{$this->column}={$this->value}");
+        $modelCollection->fill($res);
+        return $modelCollection;
     }
 
     public function insert(ModelInterface|ModelCollectionInterface $values): bool
