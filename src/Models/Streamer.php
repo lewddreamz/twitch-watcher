@@ -11,7 +11,7 @@ class Streamer extends PersistedModel
             */
     private static string $table = 'streamers';
 
-    private array $attributes = [
+    protected array $attributes = [
         'name', 'url'
     ];
 

@@ -8,12 +8,12 @@ use TwitchWatcher\Models\ModelInterface;
 
 abstract class AbstractCollection implements ModelCollectionInterface
 {
-    private array $items;
+    protected array $items;
     /**
      * Класс элемента коллекции
      * @var 
      */
-    private string $type;
+    protected string $type;
 
     public function add(ModelInterface $item): true
     {
@@ -55,7 +55,7 @@ abstract class AbstractCollection implements ModelCollectionInterface
     */
     public function getItems(array|string $cond): ModelCollectionInterface
     {
-        #TODO сделать searchByCondition трэйт
+        #TODO сделать searchByCondition трэйт, поиск по условиям, может пригодиться в коллекциях и в поиске в бд
         return new ModelCollection();
     }
 

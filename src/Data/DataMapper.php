@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace TwitchWatcher\Data;
 
 use TwitchWatcher\Collections\ModelCollection;
+use TwitchWatcher\Collections\ModelCollectionInterface;
 use TwitchWatcher\Models\ModelInterface;
+use TwitchWatcher\Models\PersistedModel;
 
 class DataMapper
 {
@@ -57,11 +59,30 @@ class DataMapper
         return $modelCollection;
     }
 
-    public function insert(ModelInterface|ModelCollectionInterface $values): bool
+    public function insert(PersistedModel|ModelCollectionInterface $values): bool
     {
-
+        if ($values instanceof PersistedModel) {
+            $this->insertModel($values);
+        } else {
+            $this->insertCollection();
+        }
     }
 
+    private function insertModel(PersistedModel $model)
+    {
+        $table = $model->getTableName();
+        if ($model->id) {
+            if ($this->dm->exists($table, 'id', $model->id)) {
+                $this->dm->update($table, $model->getValues(), 'id=' . $model->id);
+            }
+        }
+        $this->dm->insert($model->getTableName(), $model->getValues());
+    }
+
+    private function insertCollection(ModelCollectionInterface $collection): bool
+    {
+        
+    }
     public function deleteObject(ModelInterface $model): bool
     {
 

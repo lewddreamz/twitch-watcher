@@ -1,23 +1,26 @@
 <?php
 
 namespace TwitchWatcher\Collections;
+
+use ArrayAccess;
 use Iterator;
 
 class AbstractIteratorCollection extends AbstractCollection implements Iterator
 {
-    private int $pointer = 0;
+    protected int $pointer = 0;
     public function current(): mixed
     {
-        return current($this->items);
+        return $this->items[$this->pointer];
     }
     public function key(): mixed
     {
-        return key($this->items);
+        return $this->pointer;
     }
     public function next(): void
     {
-        next($this->items);
-        // $this->pointer++;
+        if (!is_null($this->items[$this->pointer])) {
+            $this->pointer++;
+        }
     }
     public function rewind(): void
     {
@@ -25,6 +28,6 @@ class AbstractIteratorCollection extends AbstractCollection implements Iterator
     }
     public function valid(): bool
     {
-        return (! is_null($this->current()));
+        return (!is_null($this->current()));
     }
 }
