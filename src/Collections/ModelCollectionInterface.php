@@ -16,4 +16,5 @@ interface ModelCollectionInterface
     public function add(ModelInterface $item): true;
     public function getItem(int $id): ModelInterface|false;
     public function getItems(array|string $cond): ModelCollectionInterface|false;
+    public function getRawAttrs(string|array $attr, int $mode): array;
 }

@@ -2,7 +2,7 @@
 
 namespace TwitchWatcher\Models;
 
-class Streamer extends PersistedModel
+class Streamer extends PersistableModel
 {
     /*
     'id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

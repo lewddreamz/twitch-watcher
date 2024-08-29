@@ -1,9 +1,9 @@
 <?php
 
 namespace TwitchWatcher\Models;
-use TwitchWatcher\Models\PersistedModel;
+use TwitchWatcher\Models\PersistableModel;
 
-class Notification extends PersistedModel
+class Notification extends PersistableModel
 {
     private static string $table = 'notifications';
 /*id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

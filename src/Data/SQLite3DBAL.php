@@ -43,7 +43,7 @@ class SQLite3DBAL implements DBAL
         return true;
     }
 
-    public function select(string $table, string $columns, string $condition = null) : array {
+    public function select(string $table, string $columns, string|array $condition = null) : array {
         $query = "SELECT $columns FROM $table";
         if (!is_null($condition)) {
             $query .= " WHERE $condition";
@@ -61,7 +61,7 @@ class SQLite3DBAL implements DBAL
         }
     }
 
-    public function insert(string $table, array $values):bool
+    public function insert(string $table, array|string $values):bool
     {
         $columns = join(",",array_keys($values));
         array_walk($values, function(&$v) {
@@ -73,7 +73,7 @@ class SQLite3DBAL implements DBAL
         return $this->db->exec($sql);
     }
 
-    public function update(string $table, array $values, string|false $where): bool
+    public function update(string $table, array|string $values, array|string $where): bool
     {
         $setArr =  [];
         $set = array_walk($values, function($v, $k) use (&$setArr){ 
@@ -90,9 +90,18 @@ class SQLite3DBAL implements DBAL
         }
         return $this->db->exec($sql);
     }
-    public function query($sql): SQLite3Result|false
+    public function query(string $sql): array
     {
-        return $this->db->query($sql);
+        $res = $this->db->query($sql);
+        if ($res) {
+            $collection = [];
+            while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
+                $collection[] = $row;
+            }
+            return $collection;
+        } else {
+            return [];
+        };
     }
 
     /**
@@ -114,8 +123,8 @@ class SQLite3DBAL implements DBAL
         '{$vod['url']}', '{$vod['twitch_id']}', '{$vod['streamer_id']}')");
     }
 
-    public function exists(string $table, string $cond, string $value): bool {
-        $result = $this->db->query("SELECT EXISTS(SELECT * FROM $table WHERE $cond = '$value')");
+    public function exists(string $table, array|string $conds): bool {
+        $result = $this->db->query("SELECT EXISTS(SELECT * FROM $table WHERE $conds)");
         if ($result) {
             $array = $result->fetchArray(SQLITE3_NUM);
             if ($array[0] == 1) {
@@ -124,6 +133,11 @@ class SQLite3DBAL implements DBAL
                 return false;
             }
         }
+        return false;
     }
-
+    #TODO stub method
+    public function delete(string $table, array|string $cond): bool
+    {
+        return true;
+    }
 }

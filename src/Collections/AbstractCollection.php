@@ -8,6 +8,8 @@ use TwitchWatcher\Models\ModelInterface;
 
 abstract class AbstractCollection implements ModelCollectionInterface
 {
+    const ASSOC = 0;
+    const ARRAY = 1;
     protected array $items;
     /**
      * Класс элемента коллекции
@@ -59,5 +61,22 @@ abstract class AbstractCollection implements ModelCollectionInterface
         return new ModelCollection();
     }
 
+    public function getRawAttrs(string|array $attrs, $mode = static::ASSOC): array
+    {
+        if (is_string($attrs)) {
+            $attrs = [$attrs];
+        }
+        $ret = [];
+        foreach ($attrs as $attr) {
+            switch($mode) {
+                case (static::ASSOC):
+                    $ret["$attr"] = $attr;
+                    break;
+                case (static::ARRAY):
+                    $ret[] = $attr;
+            }
+        }
+        return $ret;
+    }
 
 }

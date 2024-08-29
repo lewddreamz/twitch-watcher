@@ -5,30 +5,30 @@ declare(strict_types=1);
 namespace TwitchWatcher\Data;
 
 use TwitchWatcher\Collections\ModelCollection;
-use TwitchWatcher\Collections\ModelCollectionInterface;
+use TwitchWatcher\Collections\PersistableCollection;
 use TwitchWatcher\Models\ModelInterface;
-use TwitchWatcher\Models\PersistedModel;
+use TwitchWatcher\Models\PersistableModel;
+
 
 class DataMapper
 {
     private string $table, $column;
     private mixed $value;
+    private PersistableModel $model;
     public function __construct(private DBAL $dm)
     {
         
     }
 
-    public function find(string $table): self
+    public function find(PersistableModel|PersistableCollection $model): self
     {
         
-        $this->table = $table;
+        if (is_null($model->id)) {
+            throw new \InvalidArgumentException("No id");
+        }
+        $this->table = $model->getTableName();
+        $this->model = $model;
         return $this;
-        /*
-        return match(true) {
-            !is_null($id)   => $em->findById($id, new self),
-            !empty($column) => $em->findByColumn($column, new self),
-        };
-        */
     }
 
     public function byId(int $id): self
@@ -45,51 +45,65 @@ class DataMapper
         return $this;
     }
 
-    public function one(ModelInterface $model): ModelInterface
+    #TODO 
+    public function where(Condition $condition): self
+    {
+        return $this;
+    }
+
+    public function do(): PersistableModel|PersistableCollection
     {
         $result = $this->dm->select($this->table, $this->column, "{$this->column}={$this->value}");
-        $model->fill($result);
-        return $model;
+        $this->model->fill($result);
+        return $this->model;
     }
 
-    public function collection(ModelCollectionInterface $modelCollection): ModelCollectionInterface
+    public function insert(PersistableModel|PersistableCollection $values): bool
     {
-        $res = $this->dm->select($this->table, $this->column, "{$this->column}={$this->value}");
-        $modelCollection->fill($res);
-        return $modelCollection;
-    }
-
-    public function insert(PersistedModel|ModelCollectionInterface $values): bool
-    {
-        if ($values instanceof PersistedModel) {
+        if ($values instanceof PersistableModel) {
             $this->insertModel($values);
         } else {
-            $this->insertCollection();
+            $this->insertCollection($values);
         }
+        return true;
     }
 
-    private function insertModel(PersistedModel $model)
+    private function insertModel(PersistableModel $model)
     {
         $table = $model->getTableName();
         if ($model->id) {
-            if ($this->dm->exists($table, 'id', $model->id)) {
+            if ($this->dm->exists($table, 'id='. $model->id)) {
                 $this->dm->update($table, $model->getValues(), 'id=' . $model->id);
             }
+        } else {
+            $this->dm->insert($model->getTableName(), $model->getValues());
         }
-        $this->dm->insert($model->getTableName(), $model->getValues());
     }
 
-    private function insertCollection(ModelCollectionInterface $collection): bool
+    private function insertCollection(PersistableCollection $collection): bool
     {
         
+        $ids = $collection->getRawAttrs('id', PersistableCollection::ARRAY);
+        $ids = join(',', $ids);
+        /*if ($this->dm->exists($collection->getTableName(), 'id in (' . $ids . ')')) {
+            
+        }*/
+        #TODO убрать этот цикл, это тупо и порождает кучу лишних запросов
+        # сделать методы для динамической генерации запросов по проверке элементов коллекции на наличие в базе
+        # апдейта существующих/инсерта новых
+        foreach($collection as $model) {
+            $this->insertModel($model);
+        }
+        return true;
     }
-    public function deleteObject(ModelInterface $model): bool
+    #TODO заглушка
+    public function deleteObject(PersistableModel $model): bool
     {
-
+        return true;
     }
-
-    public function deleteCollection(ModelCollectionInterface $collection): bool
+    #TODO stub
+    public function deleteCollection(PersistableCollection $collection): bool
     {
-
+        return true;
     }
 }

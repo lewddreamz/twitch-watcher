@@ -2,7 +2,7 @@
 
 namespace TwitchWatcher\Models;
 
-class Vod extends PersistedModel
+class Vod extends PersistableModel
 
 {
     private static string $table = 'vods';
