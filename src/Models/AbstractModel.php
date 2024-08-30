@@ -18,7 +18,7 @@ class AbstractModel implements ModelInterface
     {
         return true;
     }
-
+    /*
     public function __get($prop)
     {
         if (isset($this->$prop)) {
@@ -27,6 +27,7 @@ class AbstractModel implements ModelInterface
             throw new PropertyException("No property $prop in object of class " . static::class);
         }
     }
+        */
     public function getAttributes(): array
     {
         return $this->attributes;

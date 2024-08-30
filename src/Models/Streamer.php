@@ -15,6 +15,6 @@ class Streamer extends PersistableModel
         'name', 'url'
     ];
 
-    private string $name;
-    private string $url;
+    public string $name;
+    public string $url;
 }

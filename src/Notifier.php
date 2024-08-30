@@ -5,15 +5,19 @@ namespace TwitchWatcher;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use TwitchWatcher\Data\DataManager;
+use TwitchWatcher\Collections\NotificationsCollection;
+use TwitchWatcher\Collections\PersistableCollection;
+use TwitchWatcher\Data\Condition;
+use TwitchWatcher\Data\DataMapper;
+
 class Notifier
 {
-    private DataManager $dm;
+    private DataMapper $dm;
 
     private PHPMailer $mail;
 
     private string $email = 'lwshpak@gmail.com';
-    public function __construct(DataManager $dm)
+    public function __construct(DataMapper $dm)
     {
         $this->dm = $dm;
         $this->mail = new PHPMailer(true);
@@ -27,14 +31,12 @@ class Notifier
         return true;
     }
 
-    public function getNotNotified() : array|false
+    public function getNotNotified() : PersistableCollection
     {
-        $notifications = $this->dm->select('notifications', '*', 'WHERE is_notified IS FALSE');
-        if (empty($notifications)) {
-            return false;
-        } else {
-            return $notifications;
-        }
+        $notifications = $this->dm->find(new NotificationsCollection())
+                        ->where(new Condition(['is_notified', 'false', '=']))
+                        ->do();
+        return $notifications;
     }
 
     public function notify(array $notification): bool

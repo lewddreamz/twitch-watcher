@@ -5,7 +5,7 @@ namespace TwitchWatcher\Models;
 abstract class PersistableModel extends AbstractModel
 {
     protected static string $table;
-    protected static int $id;
+    public int $id;
     public function __construct()
     {
 

@@ -32,26 +32,55 @@ class DataMapper
         return $this;
     }
 
-    public function id(int $id): self
+    public function byId(int $id): self
     {
 
         $this->column = 'id';
         $this->value = $id;
         return $this;
     }
-
-    public function all(): self
-    {
-        $this->column = '*';
-        return $this;
-    }
-
     public function where(Condition $condition): self
     {
         $this->condition = $condition;
         return $this;
     }
 
+    /**
+     * Вернуть все записи из набора, найденного по запросу
+     * @return \TwitchWatcher\Collections\PersistableCollection
+     */
+    public function all(): PersistableCollection
+    {
+
+    }
+    
+    /**
+     * Вернуть первую вставленную запись из набора
+     * @return \TwitchWatcher\Models\PersistableModel
+     */
+    public function first(): PersistableModel
+    {
+
+    }
+
+    /**
+     * Вернуть последнюю вставленную запись из набора
+     * @return \TwitchWatcher\Models\PersistableModel
+     */
+    public function last(): PersistableModel
+    {
+
+    }
+
+    /**
+     * Вернуть одну модель
+     * @return \TwitchWatcher\Models\PersistableModel
+     */
+    public function one(): PersistableModel
+    {
+
+    }
+    #TODO сделать этот метод приватным и вызывать его потом из all, first, last, one
     public function do(): PersistableModel|PersistableCollection
     {
         if (!is_null($this->condition)) {

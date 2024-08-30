@@ -15,4 +15,7 @@ class Notification extends PersistableModel
         'vod_id', 'is_notified', 'notification_timestamp'
     ];
 
+    public int $vod_id;
+    public bool $is_notified;
+    public string $notification_timestamp;
 }

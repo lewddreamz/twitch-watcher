@@ -21,13 +21,13 @@ class Vod extends PersistableModel
         'url',
         'streamer_id'
     ];
-
+    #TODO свои атрибуты
     //#[\Property]
-    private string $name;
-    private string $description;
-    private string $uploadDate;
-    private string $twitch_id;
-    private string $url;
-    private string $streamer_id;
+    public string $name;
+    public string $description;
+    public string $uploadDate;
+    public string $twitch_id;
+    public string $url;
+    public string $streamer_id;
 
 }
