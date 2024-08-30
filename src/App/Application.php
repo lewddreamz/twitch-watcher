@@ -11,6 +11,8 @@ use TwitchWatcher\Data\DataMapper;
 use TwitchWatcher\Http;
 use TwitchWatcher\Logger;
 use TwitchWatcher\App\Registry;
+use TwitchWatcher\Collections\StreamersCollection;
+
 class Application
 {
     private DataMapper $dm;
@@ -71,7 +73,7 @@ class Application
         $log->info("Начинаем запрос водов");
         $log->info("Получаем список стримеров...");
 
-        $streamers = $this->getStreamers();
+        $streamers = $this->dm->find(new StreamersCollection)->all()->do();
         foreach($streamers as $streamer) {
             $log->info("Ищем новые воды для стримера {$streamer['name']}");
             $vods = $this->getNewVods($streamer);

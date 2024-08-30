@@ -14,6 +14,7 @@ class DataMapper
 {
     private string $table, $column;
     private mixed $value;
+    private Condition $condition;
     private PersistableModel $model;
     public function __construct(private DBAL $dm)
     {
@@ -31,7 +32,7 @@ class DataMapper
         return $this;
     }
 
-    public function byId(int $id): self
+    public function id(int $id): self
     {
 
         $this->column = 'id';
@@ -39,21 +40,24 @@ class DataMapper
         return $this;
     }
 
-    public function byColumn(string $column): self
+    public function all(): self
     {
-        list($this->column, $this->value) = explode('.', $column);
+        $this->column = '*';
         return $this;
     }
 
-    #TODO 
     public function where(Condition $condition): self
     {
+        $this->condition = $condition;
         return $this;
     }
 
     public function do(): PersistableModel|PersistableCollection
     {
-        $result = $this->dm->select($this->table, $this->column, "{$this->column}={$this->value}");
+        if (!is_null($this->condition)) {
+            $condStr = "{$this->condition->leftOperand}{$this->condition->operator}{$this->condition->rightOperand}";
+        }
+        $result = $this->dm->select($this->table, $this->column, $condStr);
         $this->model->fill($result);
         return $this->model;
     }

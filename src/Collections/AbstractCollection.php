@@ -47,14 +47,7 @@ abstract class AbstractCollection implements ModelCollectionInterface
             return false;
         }
     }
-        /*
-    function getItems(array|string $cond)
-    function current(): mixed
-    function key(): mixed
-    function next(): void
-    function rewind(): void
-    function valid(): boolPHP
-    */
+
     public function getItems(array|string $cond): ModelCollectionInterface
     {
         #TODO сделать searchByCondition трэйт, поиск по условиям, может пригодиться в коллекциях и в поиске в бд
