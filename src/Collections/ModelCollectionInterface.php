@@ -2,6 +2,7 @@
 
 namespace TwitchWatcher\Collections;
 
+use TwitchWatcher\Data\Condition;
 use TwitchWatcher\Models\ModelInterface;
 
 interface ModelCollectionInterface
@@ -15,7 +16,7 @@ interface ModelCollectionInterface
      */
     public function add(ModelInterface $item): true;
     public function getItem(int $id): ModelInterface|false;
-    public function getItems(array|string $cond): ModelCollectionInterface|false;
+    public function getItems(): array;
     public function getRawAttrs(string|array $attr, int $mode): array;
     /**
      * Merge with another collection
@@ -23,4 +24,5 @@ interface ModelCollectionInterface
      * @return void
      */
     public function merge(ModelCollectionInterface $collection): ModelCollectionInterface;
+    public function filter(Condition $condition): ModelCollectionInterface;
 }

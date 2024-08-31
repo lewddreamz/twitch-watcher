@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TwitchWatcher\Collections;
 
+use TwitchWatcher\Data\Condition;
 use TwitchWatcher\Models\ModelInterface;
 
 abstract class AbstractCollection implements ModelCollectionInterface
@@ -35,6 +36,13 @@ abstract class AbstractCollection implements ModelCollectionInterface
         return true;
     }
 
+    public static function fromArray(array $values): ModelCollectionInterface
+    {
+        $col = new static();
+        $col->fill($values);
+        return $col;
+    }
+
     #TODO сделать $items ассоциативным массивом вида id => object
     #для доступа по хэшу, тогда эту 
     public function getItem(int $id): ModelInterface|false
@@ -49,12 +57,23 @@ abstract class AbstractCollection implements ModelCollectionInterface
             return false;
         }
     }
-        #TODO сделать searchByCondition трэйт, поиск по условиям, может пригодиться в коллекциях и в поиске в бд
-    public function getItems(array|string $cond): ModelCollectionInterface
+    public function getItems(?Condition $condition = null): array
     {
-        return new PersistableCollection();
+        if (is_null($condition)) {
+            return $this->items;
+        } else {
+            return ($this->filter($condition))->getItems();
+        }
     }
 
+    public function filter(Condition $condition): ModelCollectionInterface
+    {
+        $filtered = array_filter($this->items, function($item) use ($condition) {
+            $ret = eval("return $item->($condition->leftOperand) $condition->operator $condition->rightOperand");
+            return $ret;
+        });
+        return $this::fromArray($filtered);
+    }
     public function getRawAttrs(string|array $attrs, $mode = self::ASSOC): array
     {
         if (is_string($attrs)) {

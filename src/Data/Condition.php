@@ -26,7 +26,7 @@ class Condition
             if (count($conds) != 3) {
                 throw new \InvalidArgumentException("Wrong conditionals array");
             }
-            #TODO Добавиь проверкуу операндов
+            #TODO Добавить проверку операндов перед присваиванием
             $this->leftOperand = $conds[0];
             $this->rightOperand = $conds[1];
             $this->setOperator($conds[2]);

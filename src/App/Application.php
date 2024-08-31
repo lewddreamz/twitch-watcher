@@ -99,6 +99,7 @@ class Application
                 foreach($vods as $vod) {
                     $log->info("Сохранение вода vod_id " . $vod->name . " стримера " . $streamer->name);
                     $dm->insert($vod);
+                    #TODO избавиться от этого, модель должна обновлять id сама после вставки
                     $vod = $this->dm->find(new Vod)->last();
                     $notification = new Notification();
                     $notification->vod_id = $vod->id;
