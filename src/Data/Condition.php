@@ -47,7 +47,7 @@ class Condition
         if (isset($this->$prop)) {
             return $this->$prop;
         } else {
-            throw new DomainException("No such property $prop in class " . self::class . ".")
+            throw new DomainException("No such property $prop in class " . self::class . ".");
         }
     }
 }

@@ -86,7 +86,14 @@ class Logger
             $this->log($message, LogLevel::Debug);
         }
     }
-
+    #TODO annotation
+    /**
+     * Summary of log
+     * @param string $message
+     * @param \TwitchWatcher\LogLevel $level
+     * @param bool $verbose
+     * @return void
+     */
     public function log(string $message, LogLevel $level, bool $verbose = false): void
     {
         

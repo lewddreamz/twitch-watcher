@@ -35,6 +35,8 @@ abstract class AbstractCollection implements ModelCollectionInterface
         return true;
     }
 
+    #TODO сделать $items ассоциативным массивом вида id => object
+    #для доступа по хэшу, тогда эту 
     public function getItem(int $id): ModelInterface|false
     {
         $filtered = array_filter($this->items, fn($el) => $el->id == $id);
@@ -47,14 +49,13 @@ abstract class AbstractCollection implements ModelCollectionInterface
             return false;
         }
     }
-
+        #TODO сделать searchByCondition трэйт, поиск по условиям, может пригодиться в коллекциях и в поиске в бд
     public function getItems(array|string $cond): ModelCollectionInterface
     {
-        #TODO сделать searchByCondition трэйт, поиск по условиям, может пригодиться в коллекциях и в поиске в бд
-        return new ModelCollection();
+        return new PersistableCollection();
     }
 
-    public function getRawAttrs(string|array $attrs, $mode = static::ASSOC): array
+    public function getRawAttrs(string|array $attrs, $mode = self::ASSOC): array
     {
         if (is_string($attrs)) {
             $attrs = [$attrs];
@@ -62,14 +63,31 @@ abstract class AbstractCollection implements ModelCollectionInterface
         $ret = [];
         foreach ($attrs as $attr) {
             switch($mode) {
-                case (static::ASSOC):
+                case (self::ASSOC):
                     $ret["$attr"] = $attr;
                     break;
-                case (static::ARRAY):
+                case (self::ARRAY):
                     $ret[] = $attr;
             }
         }
         return $ret;
     }
 
+    public function empty()
+    {
+        return empty($this->items);
+    }
+
+    public function merge(ModelCollectionInterface $collection): ModelCollectionInterface
+    {
+        $ids1 = $this->getRawAttrs('id', self::ARRAY);
+        $ids2 = $collection->getRawAttrs('id', self::ARRAY);
+        if (!empty($intersect = array_intersect($ids1, $ids2))) {
+            foreach($intersect as $id) {
+                $this->set($id, $collection->get($id));
+                $collection->unset($id);
+            }
+        }
+        $this->items = array_merge($this->items, $collection->getItems());
+    }
 }

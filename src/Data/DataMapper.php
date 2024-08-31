@@ -12,7 +12,7 @@ use TwitchWatcher\Models\PersistableModel;
 
 class DataMapper
 {
-    private string $table, $column;
+    private string $table, $column, $orderStr, $limitStr;
     private mixed $value;
     private Condition $condition;
     private PersistableModel $model;
@@ -45,13 +45,31 @@ class DataMapper
         return $this;
     }
 
+    public function orderAsc(?string $column): self
+    {
+        $this->orderStr = "ORDER BY $column ASC";
+        return $this;
+    }
+    public function orderDesc(?string $column): self
+    {
+        $this->orderStr = "ORDER BY $column DESC";
+        return $this;
+    }
+    public function limit(int $limit): self
+    {
+        $limit = (string)$limit;
+        $this->limitStr = "LIMIT $limit";
+        return $this;
+    }
+
     /**
      * Вернуть все записи из набора, найденного по запросу
      * @return \TwitchWatcher\Collections\PersistableCollection
      */
     public function all(): PersistableCollection
     {
-
+        #TODO додумать 
+        return $this->do();
     }
     
     /**
@@ -60,7 +78,8 @@ class DataMapper
      */
     public function first(): PersistableModel
     {
-
+        $this->orderAsc('id')->limit(1);
+        return $this->do();
     }
 
     /**
@@ -69,8 +88,10 @@ class DataMapper
      */
     public function last(): PersistableModel
     {
-
+        $this->orderDesc('id')->limit(1);
+        return $this->do();
     }
+
 
     /**
      * Вернуть одну модель
@@ -78,7 +99,8 @@ class DataMapper
      */
     public function one(): PersistableModel
     {
-
+        #TODO додумать
+        return $this->do();
     }
     #TODO сделать этот метод приватным и вызывать его потом из all, first, last, one
     public function do(): PersistableModel|PersistableCollection
@@ -86,7 +108,7 @@ class DataMapper
         if (!is_null($this->condition)) {
             $condStr = "{$this->condition->leftOperand}{$this->condition->operator}{$this->condition->rightOperand}";
         }
-        $result = $this->dm->select($this->table, $this->column, $condStr);
+        $result = $this->dm->select($this->table, $this->column, $condStr, $this->orderStr, $this->limitStr);
         $this->model->fill($result);
         return $this->model;
     }
@@ -139,4 +161,5 @@ class DataMapper
     {
         return true;
     }
+
 }

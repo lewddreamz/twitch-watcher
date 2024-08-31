@@ -43,14 +43,14 @@ class SQLite3DBAL implements DBAL
         return true;
     }
 
-    public function select(string $table, string $columns, string|array $condition = null) : array {
+    public function select(string $table, string $columns, string|array $condition = null, ?string $order = '', ?string $limit = '') : array {
         $query = "SELECT $columns FROM $table";
         if (!is_null($condition)) {
             $query .= " WHERE $condition";
         }
-        $query .= ';';
+        $query .= " $order $limit ;";
         $result = $this->db->query($query);
-        if ($result instanceof \SQLite3Result) {
+        if ($result instanceof SQLite3Result) {
             $collection = [];
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $collection[] = $row;

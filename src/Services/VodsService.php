@@ -2,23 +2,27 @@
 
 namespace TwitchWatcher\Services;
 
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use TwitchWatcher\App\Application;
+use TwitchWatcher\Collections\VodsCollection;
 use TwitchWatcher\Data\Condition;
+use TwitchWatcher\Data\DAO\VodsDAO;
+use TwitchWatcher\Http;
 use TwitchWatcher\Models\Streamer;
 use TwitchWatcher\Models\Vod;
 use TwitchWatcher\VideoHelper;
+use TwitchWatcher\XMLHelper;
 
 class VodsService
 {
 
+    public function __construct(private Http $http, private VodsDAO $vodsDAO ) {}
+
     public function getNewVodsByStreamer(Streamer $streamer)
     {
-        $reg = Application::getRegistry();
-        $dm = $reg->getDataMapper();
-        $h = $reg->getHttp();
-        $lastVod = $dm->find(new Vod())->where(new Condition(['streamer_id', $streamer->id, '=']))->orderBy('uploadDate', 'desc')->one();
+        $lastVod = ($this->vodsDAO->getLastVodOfStreamer($streamer));
 
-        $response = $h->get("https://www.twitch.tv/{$streamer['name']}/videos?filter=archives&sort=time");
+        $response = $this->http->get("https://www.twitch.tv/{$streamer['name']}/videos?filter=archives&sort=time");
 
         $vods = VideoHelper::getVods($response, $streamer);
         if ($lastVod && !$vods->empty()) {
@@ -32,4 +36,48 @@ class VodsService
         return !empty($vods) ? $vods : false;
 
     }
+
+    public function getNewVodsFromTwitch(ResponseInterface $response, Streamer $streamer): VodsCollection
+    {
+        $arrs = XMLHelper::getLDJSON($response->getContent());
+        $collection = new VodsCollection;
+        foreach ($arrs as $arr) {
+            foreach($arr as $itemList) {
+                try {
+                    $vods = $this->makeVodsFromRequest($itemList, $streamer->id);
+                    $collection->merge($vods);
+                } catch (BadRequestDataException $e) {
+                    (Application::getLogger())->log($e->getMessage());
+                }
+            }
+        }
+        return $collection;
+    }
+
+    private function makeVodsFromRequest($itemList, ?int $streamerId = null): VodsCollection {
+        if (!isset($itemList['@type']) || $itemList['@type'] != 'ItemList') {
+          throw new BadRequestDataException("Malformed response from twitch");
+        }
+        $vods = new VodsCollection;
+        foreach ($itemList['itemListElement'] as $item) {
+          if (isset($item['@type']) && $item['@type'] == 'VideoObject') {
+            $matches = [];
+            if (preg_match('/https:\/\/www.twitch.tv\/videos\/(.*)/',$item['url'], $matches)) {
+              if (is_null($matches[1])) {
+                throw new \LogicException('Нельзя добавить запись без twitchId');
+              }
+              $item['uploadDate'] = DateHelper::normalizeDate($item['uploadDate']);
+              $arr['twitch_id'] = $matches[1];
+              if (!is_null($streamerId)) {
+                $arr['streamer_id'] = $streamerId;
+              }
+
+              $vod = new Vod;
+              $vod->fill($item);
+              $vods->add($vod);        
+            }
+          }
+        }
+        return $vods;
+      }
 }

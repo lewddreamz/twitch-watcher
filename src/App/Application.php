@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace TwitchWatcher\App;
 
-use Exception;
-use LogicException;
-use TwitchWatcher\Collections\ModelCollection;
+use TwitchWatcher\Data\DAO\NotificationsDAO;
+use TwitchWatcher\Data\DAO\VodsDAO;
 use TwitchWatcher\Exceptions\NotInitializedException;
 use TwitchWatcher\Data\DataMapper; 
 use TwitchWatcher\Http;
@@ -15,9 +14,10 @@ use TwitchWatcher\Collections\PersistableCollection;
 use TwitchWatcher\Collections\StreamersCollection;
 use TwitchWatcher\Models\Notification;
 use TwitchWatcher\Models\PersistableModel;
+use TwitchWatcher\Models\Streamer;
 use TwitchWatcher\Models\Vod;
 use TwitchWatcher\Notifier;
-use TwitchWatcher\VideoHelper;
+use TwitchWatcher\Services\VodsService;
 
 class Application
 {
@@ -59,6 +59,7 @@ class Application
     {
         return Registry::instance();
     }
+    
     public static function getLogger(): Logger
     {
         if (self::$logger === null) {
@@ -77,20 +78,21 @@ class Application
     {
         $log = self::getLogger();
         $dm = $this->dm;
+        $reg = self::getRegistry();
         $log->info("Начинаем запрос водов");
         $log->info("Получаем список стримеров...");
-
+        $vodService = new VodsService($reg->getHttp(), new VodsDAO($reg->getDataMapper()));
+        
         /**
          * @var PersistableCollection
          */
         $streamers = $dm->find(new StreamersCollection)->do();
         /**
-         * @var PersistableModel
+         * @var Streamer
          */
         foreach($streamers as $streamer) {
             $log->info("Ищем новые воды для стримера " . $streamer->name);
-            $vods = $this->getNewVods($streamer);
-            $vods = VodsService::getNewVodsOfStreamer($streamer);
+            $vods = $vodService->getNewVodsByStreamer($streamer);
             $totalVodsCount = 0;
             if (!empty($vods)) {
                 $vodsCount = 0;
@@ -114,22 +116,21 @@ class Application
         }
         $log->info("Было добавлено $totalVodsCount новых водов");
 
-        $notifier = new Notifier();
+        $notifier = new Notifier($reg->getDataMapper());
+        
         $log->info('Получаем список новых оповещений');
-        $notifications = $this->getNewNotifications();
-        if (empty($notifications)) {
+        $notificationsDao = new NotificationsDAO($reg->getDataMapper());
+        $notifications = $notificationsDao->getNewNotifications();
+
+        if ($notifications->empty()) {
             $log->info("Нет новых оповещений!");
         }
         foreach ($notifications as $notification) {
             $notifier->notify($notification);
-
         }
     }
     
-    public function getNewNotifications(): array
-    {
-        return $this->dm->select('notifications', '*', 'is_notified = ""');
-    }
+    
 
 
 }

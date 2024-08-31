@@ -17,4 +17,10 @@ interface ModelCollectionInterface
     public function getItem(int $id): ModelInterface|false;
     public function getItems(array|string $cond): ModelCollectionInterface|false;
     public function getRawAttrs(string|array $attr, int $mode): array;
+    /**
+     * Merge with another collection
+     * @param mixed $collection
+     * @return void
+     */
+    public function merge(ModelCollectionInterface $collection): ModelCollectionInterface;
 }
