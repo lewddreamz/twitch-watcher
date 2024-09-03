@@ -12,6 +12,7 @@ $config = [
         'debug' => true
     ],
     'db_filename' => 'db.sq3',
+    'dbal_class'  => 'SQLite3DBAL'
 ];
 
 $app = new Application($config);
