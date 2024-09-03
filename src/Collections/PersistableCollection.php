@@ -4,11 +4,9 @@ namespace TwitchWatcher\Collections;
 
 class PersistableCollection extends AbstractCollection
 {
-    protected static $table = '';
-
-
+    protected static string $table;
     public static function getTableName()
     {
-        return self::$table;
+        return static::$table;
     }
 }

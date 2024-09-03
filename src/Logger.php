@@ -4,6 +4,8 @@ declare(strict_types= 1);
 namespace TwitchWatcher;
 
 use InvalidArgumentException;
+use TwitchWatcher\App\Application;
+use TwitchWatcher\App\Config;
 use TwitchWatcher\Exceptions\ConfigurationException;
 class Logger
 {
@@ -19,12 +21,9 @@ class Logger
     private $appLogFH;
     private bool $verbose = false;
     private bool $debug = false;
-    public function __construct(array $config = null)
+    public function __construct(Config $config)
     {
         if (null !== $config) {
-            $this->setConfig($config);
-        } else {
-            $config = Application::config();
             $this->setConfig($config);
         }
 
@@ -32,34 +31,37 @@ class Logger
         // $this->errorLogFH = fopen($this->log_dir . DIRECTORY_SEPARATOR . $this->errorLog, 'a');
     }
 
-    public function setConfig(array $config): void
+    public function setConfig(Config $config): void
     {
-        if (isset($config['logger'])) {
-            $config = $config['logger'];
-        }
-        if (!isset($config['log_dir'])) {
-            throw new ConfigurationException('Не задана директория логов');
+        if (($config->has('logger'))) {
+            $config = $config->logger;
+        } else {
+            throw new \RuntimeException('Не задана конфигурация логера');
         }
 
+        if (!$config->has('log_dir')) {
+            throw new \RuntimeException('Не задана директория логов');
+        }
+        #TODO wtf???
         $main = Application::config();
-        $this->log_dir = $main['base_dir'] . DIRECTORY_SEPARATOR . $config['log_dir'];
+        $this->log_dir = $main->base_dir . DIRECTORY_SEPARATOR . $config->log_dir;
 
-        if (!isset($config['application_log'])) {
+        if (!isset($config->application_log)) {
             $this->appLog = self::APP_LOG_DEFAULT;
         } else {
-            $this->appLog = $config['application_log'];
+            $this->appLog = $config->application_log;
         }
 
-        if (!isset($config['error_log'])) {
+        if (!isset($config->error_log)) {
             $this->errorLog = self::ERROR_LOG_DEFAULT;
         } else {
-            $this->errorLog = $config['error_log'];
+            $this->errorLog = $config->error_log;
         }
-        if (isset($config['verbose'])) {
+        if (isset($config->verbose)) {
             $this->verbose = $config['verbose'];
         }
-        if (isset($config['debug'])) {
-            $this->debug = $config['debug'];
+        if (isset($config->debug)) {
+            $this->debug = $config->debug;
         }
     }
 

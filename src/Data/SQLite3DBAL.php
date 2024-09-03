@@ -48,7 +48,7 @@ class SQLite3DBAL implements DBAL
         if (!is_null($condition)) {
             $query .= " WHERE $condition";
         }
-        $query .= " $order $limit ;";
+        $query .= " $order $limit";
         $result = $this->db->query($query);
         if ($result instanceof SQLite3Result) {
             $collection = [];

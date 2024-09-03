@@ -32,7 +32,7 @@ class Application
     {
         $this->setConfig($config);
         self::$instance = $this;
-        $reg = Registry::instance();
+        $reg = Registry::instance($this->config);
         $this->dm = $reg->getDataMapper();
         $this->http = $reg->getHttp();
     }
@@ -63,7 +63,7 @@ class Application
     public static function getLogger(): Logger
     {
         if (self::$logger === null) {
-            self::$logger = new Logger();
+            self::$logger = new Logger(Application::config());
             return self::$logger;
         } else {
             return self::$logger;
@@ -87,13 +87,13 @@ class Application
          * @var PersistableCollection
          */
         $streamers = $dm->find(new StreamersCollection)->do();
+        $totalVodsCount = 0;
         /**
          * @var Streamer
          */
         foreach($streamers as $streamer) {
             $log->info("Ищем новые воды для стримера " . $streamer->name);
             $vods = $vodService->getNewVodsByStreamer($streamer);
-            $totalVodsCount = 0;
             if (!empty($vods)) {
                 $vodsCount = 0;
                 foreach($vods as $vod) {

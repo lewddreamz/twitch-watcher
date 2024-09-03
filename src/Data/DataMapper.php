@@ -6,16 +6,17 @@ namespace TwitchWatcher\Data;
 
 use TwitchWatcher\Collections\ModelCollection;
 use TwitchWatcher\Collections\PersistableCollection;
+use TwitchWatcher\Exceptions\NotInitializedException;
 use TwitchWatcher\Models\ModelInterface;
 use TwitchWatcher\Models\PersistableModel;
 
 
 class DataMapper
 {
-    private string $table, $column, $orderStr, $limitStr;
+    private string $table, $column = '*', $orderStr, $limitStr;
     private mixed $value;
     private Condition $condition;
-    private PersistableModel $model;
+    private PersistableModel|PersistableCollection $model;
     public function __construct(private DBAL $dm)
     {
         
@@ -24,10 +25,13 @@ class DataMapper
     public function find(PersistableModel|PersistableCollection $model): self
     {
         
-        if (is_null($model->id)) {
+        /*if (is_null($model->id)) {
             throw new \InvalidArgumentException("No id");
-        }
+        }*/
         $this->table = $model->getTableName();
+        if (empty($this->table)) {
+            throw new NotInitializedException("Метод " . $model::class ." ->getTableName() не вернул валидное имя таблицы");
+        }
         $this->model = $model;
         return $this;
     }
@@ -105,10 +109,10 @@ class DataMapper
     #TODO сделать этот метод приватным и вызывать его потом из all, first, last, one
     public function do(): PersistableModel|PersistableCollection
     {
-        if (!is_null($this->condition)) {
+        if (!empty($this->condition)) {
             $condStr = "{$this->condition->leftOperand}{$this->condition->operator}{$this->condition->rightOperand}";
         }
-        $result = $this->dm->select($this->table, $this->column, $condStr, $this->orderStr, $this->limitStr);
+        $result = $this->dm->select($this->table, $this->column, $condStr ?? null, $this->orderStr ?? null, $this->limitStr ?? null);
         $this->model->fill($result);
         return $this->model;
     }
@@ -161,5 +165,9 @@ class DataMapper
     {
         return true;
     }
-
+    #TODO stub
+    public function columns()
+    {
+        return true;
+    }
 }

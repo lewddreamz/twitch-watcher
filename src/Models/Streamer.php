@@ -9,7 +9,7 @@ class Streamer extends PersistableModel
             'name' VARCHAR NOT NULL,
             'url' VARCHAR NOT NULL)")
             */
-    private static string $table = 'streamers';
+    protected static string $table = 'streamers';
 
     protected array $attributes = [
         'name', 'url'
