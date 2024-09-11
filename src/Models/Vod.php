@@ -5,7 +5,7 @@ namespace TwitchWatcher\Models;
 class Vod extends PersistableModel
 
 {
-    private static string $table = 'vods';
+    protected static string $table = 'vods';
 
     /*'name' VARCHAR NOT NULL,
             'description' VARCHAR NOT NULL,

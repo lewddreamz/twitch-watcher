@@ -7,7 +7,7 @@ use TwitchWatcher\Data\DAO\NotificationsDAO;
 use TwitchWatcher\Data\DAO\VodsDAO;
 use TwitchWatcher\Exceptions\NotInitializedException;
 use TwitchWatcher\Data\DataMapper; 
-use TwitchWatcher\Http;
+use TwitchWatcher\Services\Http;
 use TwitchWatcher\Logger;
 use TwitchWatcher\App\Registry;
 use TwitchWatcher\Collections\PersistableCollection;
@@ -81,7 +81,7 @@ class Application
         $reg = self::getRegistry();
         $log->info("Начинаем запрос водов");
         $log->info("Получаем список стримеров...");
-        $vodService = new VodsService($reg->getHttp(), new VodsDAO($reg->getDataMapper()));
+        $vodService = new VodsService($reg->getHttp(), new VodsDAO($reg->getDataMapper()), $reg->getTwitchService());
         
         /**
          * @var PersistableCollection
@@ -94,7 +94,7 @@ class Application
         foreach($streamers as $streamer) {
             $log->info("Ищем новые воды для стримера " . $streamer->name);
             $vods = $vodService->getNewVodsByStreamer($streamer);
-            if (!empty($vods)) {
+            if (!$vods->empty()) {
                 $vodsCount = 0;
                 foreach($vods as $vod) {
                     $log->info("Сохранение вода vod_id " . $vod->name . " стримера " . $streamer->name);

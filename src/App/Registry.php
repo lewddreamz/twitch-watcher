@@ -5,8 +5,9 @@ namespace TwitchWatcher\App;
 use TwitchWatcher\Data\DataMapper;
 use TwitchWatcher\Data\SQLite3DBAL;
 use TwitchWatcher\App\Application as App;
-use TwitchWatcher\Http;
-
+use TwitchWatcher\Services\Http;
+use TwitchWatcher\Services\TwitchService;
+#TODO додумоть доделоть
 class Registry
 {
     public static $instance = null;
@@ -40,5 +41,10 @@ class Registry
 
     public function getHttp(): Http {
         return new Http();
+    }
+
+    public function getTwitchService(): TwitchService
+    {
+        return new TwitchService($this->getHttp());
     }
 }

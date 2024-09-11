@@ -2,7 +2,7 @@
 
 namespace TwitchWatcher\Collections;
 
-class PersistableCollection extends AbstractCollection
+class PersistableCollection extends AbstractIteratorCollection
 {
     protected static string $table;
     public static function getTableName()

@@ -14,11 +14,16 @@ class AbstractModel implements ModelInterface
 {
     protected array $attributes;
 
+    //TODOstr
     public function fill(array $attributes) : true
     {
+        foreach ($attributes as $name => $value) {
+            if (property_exists(static::class, "$name")) {
+                $this->$name = $value;
+            }
+        }
         return true;
     }
-    /*
     public function __get($prop)
     {
         if (isset($this->$prop)) {
@@ -27,7 +32,7 @@ class AbstractModel implements ModelInterface
             throw new PropertyException("No property $prop in object of class " . static::class);
         }
     }
-        */
+        
     public function getAttributes(): array
     {
         return $this->attributes;

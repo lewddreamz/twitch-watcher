@@ -28,20 +28,22 @@ class DataMapper
         /*if (is_null($model->id)) {
             throw new \InvalidArgumentException("No id");
         }*/
-        $this->table = $model->getTableName();
+        $this->table = $model::getTableName();
         if (empty($this->table)) {
             throw new NotInitializedException("Метод " . $model::class ." ->getTableName() не вернул валидное имя таблицы");
         }
         $this->model = $model;
         return $this;
     }
-
+    public function columns(string $columns): static 
+    {
+        $this->column($columns);
+        return $this;
+    }
     public function byId(int $id): self
     {
 
-        $this->column = 'id';
-        $this->value = $id;
-        return $this;
+        return $this->where(new Condition("id=$id"));
     }
     public function where(Condition $condition): self
     {
@@ -113,6 +115,10 @@ class DataMapper
             $condStr = "{$this->condition->leftOperand}{$this->condition->operator}{$this->condition->rightOperand}";
         }
         $result = $this->dm->select($this->table, $this->column, $condStr ?? null, $this->orderStr ?? null, $this->limitStr ?? null);
+        if (empty($result)) {
+            #TODO нормальное исключение
+            throw new \Exception("No data found in data source");
+        }
         $this->model->fill($result);
         return $this->model;
     }
@@ -165,9 +171,5 @@ class DataMapper
     {
         return true;
     }
-    #TODO stub
-    public function columns()
-    {
-        return true;
-    }
+
 }

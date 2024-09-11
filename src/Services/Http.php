@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace TwitchWatcher;
+namespace TwitchWatcher\Services;
 
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;

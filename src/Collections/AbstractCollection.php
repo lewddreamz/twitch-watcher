@@ -11,17 +11,21 @@ abstract class AbstractCollection implements ModelCollectionInterface
 {
     const ASSOC = 0;
     const ARRAY = 1;
-    protected array $items;
+    protected array $items = [];
     /**
      * Класс элемента коллекции
      * @var 
      */
     protected string $type;
 
+    protected bool $allowChildren = false;
     public function add(ModelInterface $item): true
     {
-        if ($item::class !== $this->type) {
+        if (!$this->allowChildren && ($item::class !== $this->type)) {
             throw new \InvalidArgumentException("This collection accepts only objects of {$this->type} class.");
+        }
+        if ($this->allowChildren && !($item instanceof $this->type)) {
+            throw new \InvalidArgumentException("This collection accepts only instances of {$this->type} and its descendats.");
         }
         $this->items[] = $item;
         return true;
@@ -99,6 +103,7 @@ abstract class AbstractCollection implements ModelCollectionInterface
 
     public function merge(ModelCollectionInterface $collection): ModelCollectionInterface
     {
+        #TODO set get unset
         $ids1 = $this->getRawAttrs('id', self::ARRAY);
         $ids2 = $collection->getRawAttrs('id', self::ARRAY);
         if (!empty($intersect = array_intersect($ids1, $ids2))) {

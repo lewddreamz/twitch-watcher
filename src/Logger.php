@@ -46,21 +46,21 @@ class Logger
         $main = Application::config();
         $this->log_dir = $main->base_dir . DIRECTORY_SEPARATOR . $config->log_dir;
 
-        if (!isset($config->application_log)) {
-            $this->appLog = self::APP_LOG_DEFAULT;
-        } else {
+        if ($config->has('application_log')) {
             $this->appLog = $config->application_log;
+        } else {
+            $this->appLog = self::APP_LOG_DEFAULT;
         }
 
-        if (!isset($config->error_log)) {
-            $this->errorLog = self::ERROR_LOG_DEFAULT;
-        } else {
+        if ($config->has('error_log')) {
             $this->errorLog = $config->error_log;
+        } else {
+            $this->errorLog = self::ERROR_LOG_DEFAULT;
         }
-        if (isset($config->verbose)) {
-            $this->verbose = $config['verbose'];
+        if ($config->has('verbose')) {
+            $this->verbose = $config->verbose;
         }
-        if (isset($config->debug)) {
+        if ($config->has('debug')) {
             $this->debug = $config->debug;
         }
     }

@@ -5,7 +5,7 @@ use TwitchWatcher\Models\PersistableModel;
 
 class Notification extends PersistableModel
 {
-    private static string $table = 'notifications';
+    protected static string $table = 'notifications';
 /*id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             'vod_id' INTEGER NOT NULL,
             'is_notified' BOOLEAN,
