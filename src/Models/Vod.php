@@ -28,6 +28,6 @@ class Vod extends PersistableModel
     public string $uploadDate;
     public string $twitch_id;
     public string $url;
-    public string $streamer_id;
+    public int $streamer_id;
 
 }

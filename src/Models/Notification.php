@@ -11,11 +11,15 @@ class Notification extends PersistableModel
             'is_notified' BOOLEAN,
             'notification_timestamp' TIMESTAMP)");
             */
-    private array $attributes = [
+    protected array $attributes = [
         'vod_id', 'is_notified', 'notification_timestamp'
     ];
 
     public int $vod_id;
     public bool $is_notified;
-    public string $notification_timestamp;
+    /**
+     * Дата оповещения
+     * @var ?string
+     */
+    public ?string $notification_timestamp;
 }

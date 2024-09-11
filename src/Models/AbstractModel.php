@@ -14,15 +14,32 @@ class AbstractModel implements ModelInterface
 {
     protected array $attributes;
 
-    //TODOstr
-    public function fill(array $attributes) : true
+    //TODO проверка на ошибки
+    public function fill(array $attributes) : void
     {
+        //флаг несколько сомнительное решение, но это хотя бы означает
+        //что хотя бы одно свойство было инициилизировано
+        $partiallyFilled = false;
+        $reflection = new \ReflectionClass(static::class);
         foreach ($attributes as $name => $value) {
             if (property_exists(static::class, "$name")) {
-                $this->$name = $value;
+                // TODO подумать над системой тайпкастинга, но она должна очевидно быть не здесь,
+                // скорее всего в дата маппере, либо отдельный компонент с полиморфизмом под разные дб
+                // пока что этот костыль
+                $reflectionProperty = $reflection->getProperty($name);
+                $type = $reflectionProperty->getType()->getName();
+                if ($type === 'bool') {
+                    $value = (bool) $value;
+                }        
+                $this->$name =  $value;
+                if (!$partiallyFilled) {
+                    $partiallyFilled = true;
+                } 
             }
         }
-        return true;
+        if (!$partiallyFilled) {
+            throw new PropertyException("Model " . static::class . " was not filled with such array of attributes " . print_r($attributes, true));
+        }
     }
     public function __get($prop)
     {
@@ -40,10 +57,14 @@ class AbstractModel implements ModelInterface
     
     public function getValues(): array
     {
-        $vals = [];
+        $values = [];
         foreach ($this->attributes as $attr) {
-            $vals[$attr] = $this->$attr;
+            if (isset($this->$attr)) {
+                $values[$attr] = $this->$attr;
+            } else {
+                $values[$attr] = null;
+            }
         }
-        return $vals;
+        return $values;
     }
 }

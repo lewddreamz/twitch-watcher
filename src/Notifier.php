@@ -9,6 +9,8 @@ use TwitchWatcher\Collections\NotificationsCollection;
 use TwitchWatcher\Collections\PersistableCollection;
 use TwitchWatcher\Data\Condition;
 use TwitchWatcher\Data\DataMapper;
+use TwitchWatcher\Models\Notification;
+use TwitchWatcher\Models\Vod;
 
 class Notifier
 {
@@ -39,22 +41,14 @@ class Notifier
         return $notifications;
     }
 
-    public function notify(array $notification): bool
+    public function notify(Notification $notification): bool
     {
-        if (empty($notification)) {
-            return false;
-        }
         try {
-            $vod = $this->dm->select('vods', '*', "id = {$notification['vod_id']}");
-            
-            if (empty($vod)) {
-                throw new \LogicException("Не найдено повтора, связанного с оповещением");
-            }
-            $vod = $vod[0];
+            $vod = $this->dm->find(new Vod())->byId($notification->vod_id)->one();
             $this->mail->setFrom('lwshpak@gmail.com', 'App');
             $this->mail->addAddress($this->email, 'Me');
             $this->mail->Subject = 'Twitch VOD Notification';
-            $body = "Новый повтор {$vod['name']} {$vod['description']} от {$vod['uploadDate']}. Ссылка {$vod['url']}";
+            $body = "Новый повтор {$vod->name} {$vod->description} от {$vod->uploadDate}. Ссылка {$vod->url}";
             $this->mail->Body = $body;
 
             $this->mail->isSMTP();
@@ -66,7 +60,10 @@ class Notifier
             $this->mail->Port = 587;
             $this->mail->SMTPDebug = 4;
 
-            $this->dm->update('notifications', ["is_notified" => true], "id = '{$notification['id']}'");
+            $notification->is_notified = true;
+            //TODO фикс таймзону
+            $notification->notification_timestamp = (new \DateTime('now'))->format('Y-m-d h:i:s');
+            $this->dm->insert($notification);
 
             $this->mail->send();
 

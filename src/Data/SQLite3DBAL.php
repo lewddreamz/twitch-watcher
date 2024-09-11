@@ -38,7 +38,7 @@ class SQLite3DBAL implements DBAL
         $this->db->exec("CREATE TABLE IF NOT EXISTS 'notifications' (
             'id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             'vod_id' INTEGER NOT NULL,
-            'is_notified' BOOLEAN,
+            'is_notified' BOOLEAN NOT NULL,
             'notification_timestamp' TIMESTAMP)");
         return true;
     }
@@ -117,12 +117,6 @@ class SQLite3DBAL implements DBAL
             return false;
         }
     }
-    public function saveVod(array $vod): bool {
-        return $this->db->exec("INSERT INTO 'vods' ('name', 'description', 'uploadDate', 'url', 'twitch_id', 'streamer_id')
-        VALUES ('{$vod['name']}', '{$vod['description']}', '{$vod['uploadDate']}',
-        '{$vod['url']}', '{$vod['twitch_id']}', '{$vod['streamer_id']}')");
-    }
-
     public function exists(string $table, array|string $conds): bool {
         $result = $this->db->query("SELECT EXISTS(SELECT * FROM $table WHERE $conds)");
         if ($result) {

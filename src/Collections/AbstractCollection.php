@@ -70,13 +70,25 @@ abstract class AbstractCollection implements ModelCollectionInterface
         }
     }
 
+    /**
+     * Returns new Collection with elements, that apply to condition
+     * @param \TwitchWatcher\Data\Condition $condition
+     * @return \TwitchWatcher\Collections\ModelCollectionInterface
+     */
     public function filter(Condition $condition): ModelCollectionInterface
     {
+        //TODO
+        //так в тупую не сработает, нужно учитывать типы операндов (строка, число, дата)
         $filtered = array_filter($this->items, function($item) use ($condition) {
-            $ret = eval("return $item->($condition->leftOperand) $condition->operator $condition->rightOperand");
+            $evalStr = 'return $item->' . "{$condition->leftOperand} {$condition->operator} " . '$condition->rightOperand;';
+            $ret = eval($evalStr);
             return $ret;
         });
-        return $this::fromArray($filtered);
+        $collection = new static();
+        foreach($filtered as $el) {
+            $collection->add($el);
+        }
+        return $collection;
     }
     public function getRawAttrs(string|array $attrs, $mode = self::ASSOC): array
     {

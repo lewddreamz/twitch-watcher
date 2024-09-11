@@ -23,7 +23,7 @@ class TwitchService
         $collection = [];
         $arrs = XMLHelper::getLDJSON($response->getContent());
         $itemList = false;
-        if ($arrs['@graph']) {
+        if (!empty($arrs['@graph'])) {
           $itemList = array_filter($arrs['@graph'], fn($x) => isset($x['@type']) && $x['@type'] == 'ItemList');
         }
         if (!empty($itemList)) {

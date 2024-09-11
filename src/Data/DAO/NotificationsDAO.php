@@ -12,7 +12,7 @@ class NotificationsDAO extends AbstractDAO
     public function getNewNotifications(): NotificationsCollection
     {
         try {
-             $this->dm->find(new NotificationsCollection())
+             return $this->dm->find(new NotificationsCollection())
                 ->where(new Condition('is_notified=false'))
                 ->all();
         } catch (\Exception $e) {

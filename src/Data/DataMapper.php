@@ -106,6 +106,7 @@ class DataMapper
     public function one(): PersistableModel
     {
         #TODO додумать
+        $this->limit(1);
         return $this->do();
     }
     #TODO сделать этот метод приватным и вызывать его потом из all, first, last, one
@@ -117,7 +118,13 @@ class DataMapper
         $result = $this->dm->select($this->table, $this->column, $condStr ?? null, $this->orderStr ?? null, $this->limitStr ?? null);
         if (empty($result)) {
             #TODO нормальное исключение
+            #TODO наверно вообще его убрать
             throw new \Exception("No data found in data source");
+        }
+        //это временно, потому что по хорошему тут должно быть 2 отдельных метода для модели или коллекции, либо два полиморфных класса
+        // в любом случае, TODO убрать
+        if (count($result) == 1) {
+            $result = $result[0];
         }
         $this->model->fill($result);
         return $this->model;
@@ -136,7 +143,7 @@ class DataMapper
     private function insertModel(PersistableModel $model)
     {
         $table = $model->getTableName();
-        if ($model->id) {
+        if (!empty($model->id)) {
             if ($this->dm->exists($table, 'id='. $model->id)) {
                 $this->dm->update($table, $model->getValues(), 'id=' . $model->id);
             }
