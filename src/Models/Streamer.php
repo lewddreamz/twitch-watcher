@@ -12,7 +12,7 @@ class Streamer extends PersistableModel
     protected static string $table = 'streamers';
 
     protected array $attributes = [
-        'name', 'url'
+        'name', 'url',
     ];
 
     public string $name;

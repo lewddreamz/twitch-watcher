@@ -1,3 +1,5 @@
 *.sq3
 vendor
 tmp
+*.cache
+.vscode/*

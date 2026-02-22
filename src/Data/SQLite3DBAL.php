@@ -1,28 +1,28 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TwitchWatcher\Data;
 
-use SQLite3;
-use SQLite3Result;
-
 class SQLite3DBAL implements DBAL
 {
-    private SQLite3 $db;
+    private \SQLite3 $db;
     private string $filename;
 
-    public function __construct(string $filename) {
+    public function __construct(string $filename)
+    {
         $this->filename = $filename;
         // create sqlite database file if doesnt exists
         if (!is_file($this->filename)) {
             touch($this->filename);
         }
-        $this->db = new SQLite3($this->filename);
+        $this->db = new \SQLite3($this->filename);
         $this->db->enableExceptions(true);
         $this->initTables();
     }
 
-    private function initTables(): bool {
+    private function initTables(): bool
+    {
         $this->db->exec("CREATE TABLE IF NOT EXISTS 'vods' (
             'id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             'name' VARCHAR NOT NULL,
@@ -40,56 +40,64 @@ class SQLite3DBAL implements DBAL
             'vod_id' INTEGER NOT NULL,
             'is_notified' BOOLEAN NOT NULL,
             'notification_timestamp' TIMESTAMP)");
+
         return true;
     }
 
-    public function select(string $table, string $columns, string|array $condition = null, ?string $order = '', ?string $limit = '') : array {
-        $query = "SELECT $columns FROM $table";
+    public function select(string $table, string $columns, null|array|string $condition = null, ?string $order = '', ?string $limit = ''): array
+    {
+        $query = "SELECT {$columns} FROM {$table}";
         if (!is_null($condition)) {
-            $query .= " WHERE $condition";
+            $query .= " WHERE {$condition}";
         }
-        $query .= " $order $limit";
+        $query .= " {$order} {$limit}";
         $result = $this->db->query($query);
-        if ($result instanceof SQLite3Result) {
+        if ($result instanceof \SQLite3Result) {
             $collection = [];
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $collection[] = $row;
             }
+
             return $collection;
-        } else {
-            return [];
         }
+
+        return [];
+
     }
 
-    public function insert(string $table, array|string $values):bool
+    public function insert(string $table, array|string $values): bool
     {
-        $columns = join(",",array_keys($values));
-        array_walk($values, function(&$v) {
+        $columns = join(',', array_keys($values));
+        array_walk($values, function (&$v) {
             if (is_string($v)) {
-            $v = str_replace("'", "''", $v);
-        }});
+                $v = str_replace("'", "''", $v);
+            }
+        });
         $values = "'" . join("','", array_values($values)) . "'";
-        $sql = "INSERT INTO $table ($columns) values ($values)";
+        $sql = "INSERT INTO {$table} ({$columns}) values ({$values})";
+
         return $this->db->exec($sql);
     }
 
     public function update(string $table, array|string $values, array|string $where): bool
     {
         $setArr =  [];
-        $set = array_walk($values, function($v, $k) use (&$setArr){ 
+        $set = array_walk($values, function ($v, $k) use (&$setArr) {
             if (is_string($v)) {
-                $setArr[]= "$k = '$v'";
+                $setArr[] = "{$k} = '{$v}'";
             } else {
-                $setArr[] = "$k = $v";
+                $setArr[] = "{$k} = {$v}";
             }
         });
         $set = join(',', $setArr);
-        $sql = "UPDATE $table SET $set";
+        $sql = "UPDATE {$table} SET {$set}";
         if (!empty($where)) {
-            $sql .= " WHERE $where";
+            $sql .= " WHERE {$where}";
         }
+
         return $this->db->exec($sql);
     }
+
     public function query(string $sql): array
     {
         $res = $this->db->query($sql);
@@ -98,14 +106,18 @@ class SQLite3DBAL implements DBAL
             while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
                 $collection[] = $row;
             }
+
             return $collection;
-        } else {
-            return [];
-        };
+        }
+
+        return [];
+
     }
 
     /**
-     * Вернет скалярное значение из 1 строки результирующего набора
+     * Вернет скалярное значение из 1 строки результирующего набора.
+     *
+     * @param mixed $sql
      */
     public function queryScalar($sql): mixed
     {
@@ -113,23 +125,29 @@ class SQLite3DBAL implements DBAL
         $row = $result->fetchArray(SQLITE3_NUM);
         if (!empty($row)) {
             return $row[0];
-        } else {
-            return false;
         }
+
+        return false;
+
     }
-    public function exists(string $table, array|string $conds): bool {
-        $result = $this->db->query("SELECT EXISTS(SELECT * FROM $table WHERE $conds)");
+
+    public function exists(string $table, array|string $conds): bool
+    {
+        $result = $this->db->query("SELECT EXISTS(SELECT * FROM {$table} WHERE {$conds})");
         if ($result) {
             $array = $result->fetchArray(SQLITE3_NUM);
-            if ($array[0] == 1) {
+            if (1 == $array[0]) {
                 return true;
-            } else {
-                return false;
             }
+
+            return false;
+
         }
+
         return false;
     }
-    #TODO stub method
+
+    // TODO stub method
     public function delete(string $table, array|string $cond): bool
     {
         return true;

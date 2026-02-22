@@ -1,10 +1,18 @@
 <?php
+
 namespace TwitchWatcher\Tests\Unit\App;
+
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class RegistryTest extends TestCase
 {
     private Registry $reg;
+
     public function setUp(): void
     {
         $config = $this->createMock(Config::class);

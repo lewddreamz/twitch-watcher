@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TwitchWatcher;
@@ -19,26 +20,29 @@ class Notifier
     private PHPMailer $mail;
 
     private string $email = 'lwshpak@gmail.com';
+
     public function __construct(DataMapper $dm)
     {
         $this->dm = $dm;
         $this->mail = new PHPMailer(true);
     }
-    public function notifyAll() : bool
+
+    public function notifyAll(): bool
     {
         $notifications = $this->getNotNotified();
-        foreach($notifications as $notification) {
+        foreach ($notifications as $notification) {
             $this->notify($notification);
         }
+
         return true;
     }
 
-    public function getNotNotified() : PersistableCollection
+    public function getNotNotified(): PersistableCollection
     {
-        $notifications = $this->dm->find(new NotificationsCollection())
-                        ->where(new Condition(['is_notified', 'false', '=']))
-                        ->do();
-        return $notifications;
+        return $this->dm->find(new NotificationsCollection())
+            ->where(new Condition(['is_notified', 'false', '=']))
+            ->do()
+        ;
     }
 
     public function notify(Notification $notification): bool
@@ -61,18 +65,18 @@ class Notifier
             $this->mail->SMTPDebug = 4;
 
             $notification->is_notified = true;
-            //TODO фикс таймзону
+            // TODO фикс таймзону
             $notification->notification_timestamp = (new \DateTime('now'))->format('Y-m-d h:i:s');
             $this->dm->insert($notification);
 
             $this->mail->send();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             echo $e->errorMessage();
         } catch (\Exception $exception) {
             echo $exception->getMessage();
         }
+
         return true;
     }
-    
 }

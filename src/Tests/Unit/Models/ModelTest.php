@@ -1,22 +1,32 @@
 <?php
+
 declare(strict_types=1);
+
 namespace TwitchWatcher\Tests\Unit\Models;
+
 use DeepCopy\Exception\PropertyException;
 use PHPUnit\Framework\TestCase;
+
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class ModelTest extends TestCase
 {
     public TestModel $model;
 
     public function setUp(): void
     {
-        $this->model = new TestModel;
+        $this->model = new TestModel();
     }
+
     public function testFillAllProps()
     {
         $props = [
             'stringProp' => 'str',
             'intProp'    => 1,
-            'nonExistentProp' => 'something'
+            'nonExistentProp' => 'something',
         ];
         $this->model->fill($props);
 
@@ -33,6 +43,7 @@ class ModelTest extends TestCase
             'intProp'    => 'asdf',
         ];
         $this->expectException(\Throwable::class);
+
         try {
             $this->model->fill($props);
         } catch (\Throwable $e) {
@@ -43,11 +54,11 @@ class ModelTest extends TestCase
     public function testGetValues()
     {
         $model = new TestModel();
-        //Инициализируем одно свойство
+        // Инициализируем одно свойство
         $model->intProp = 1;
         $arr = $model->getValues();
-        $this->assertSame(1, $arr['intProp'], "test");
-        $this->assertArrayHasKey('stringProp', $arr, "HasKeyAssertion");
-        $this->assertNull($arr['stringProp'], "Prop is null assertion");
+        $this->assertSame(1, $arr['intProp'], 'test');
+        $this->assertArrayHasKey('stringProp', $arr, 'HasKeyAssertion');
+        $this->assertNull($arr['stringProp'], 'Prop is null assertion');
     }
 }

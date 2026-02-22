@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TwitchWatcher\Services;
@@ -16,16 +17,17 @@ class Http
         $this->h = HttpClient::create();
     }
 
-    public function get(string $url, array $options = []) : ResponseInterface
+    public function get(string $url, array $options = []): ResponseInterface
     {
         return $this->h->request('GET', $url, $options);
     }
 
-    public function post(string $url, array $options = []) : ResponseInterface
+    public function post(string $url, array $options = []): ResponseInterface
     {
         return $this->h->request('POST', $url, $options);
     }
-    public function request(string $method, string $url, array $options = []) : ResponseInterface
+
+    public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         return $this->h->request($method, $url, $options);
     }

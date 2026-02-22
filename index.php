@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 use TwitchWatcher\App\Application;
 
@@ -9,10 +10,10 @@ $config = [
     'logger' => [
         'log_dir' => 'logs',
         'verbose' => true,
-        'debug' => true
+        'debug' => true,
     ],
     'db_filename' => 'db.sq3',
-    'dbal_class'  => 'SQLite3DBAL'
+    'dbal_class'  => 'SQLite3DBAL',
 ];
 
 $app = new Application($config);

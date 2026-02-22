@@ -8,13 +8,12 @@ class XMLHelper
 {
     public static function getLDJSON(string $html)
     {
-        $xml = new \DOMDocument;
+        $xml = new \DOMDocument();
         @$xml->loadHTML($html);
-        $xpath = new \DOMXpath($xml);
+        $xpath = new \DOMXPath($xml);
         $xmlNodes = $xpath->query("//script[@type='application/ld+json']");
         foreach ($xmlNodes as $xmlNode) {
-            $jsonArr = json_decode($xmlNode->textContent, true);
-            return $jsonArr;
+            return json_decode($xmlNode->textContent, true);
         }
     }
 }

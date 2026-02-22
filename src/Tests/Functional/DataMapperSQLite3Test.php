@@ -1,15 +1,23 @@
 <?php
+
 declare(strict_types=1);
+
 namespace TwitchWatcher\Tests\Functional;
+
 use PHPUnit\Framework\TestCase;
-use TwitchWatcher\App\Application;
-use TwitchWatcher\App\Registry;
 use TwitchWatcher\Data\DataMapper;
 use TwitchWatcher\Data\SQLite3DBAL;
 use TwitchWatcher\Models\Vod;
+
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class DataMapperSQLite3Test extends TestCase
 {
     public $dm;
+
     public function __construct(string $name)
     {
         parent::__construct($name);
@@ -20,7 +28,7 @@ class DataMapperSQLite3Test extends TestCase
     {
         $vod = new Vod();
         $vod->id = 1;
-        $vod->name = "Тестовый";
+        $vod->name = 'Тестовый';
         $vod->streamer_id = 1;
         $vod->twitch_id = 'asdf';
         $vod->uploadDate = '2024-11-09 00:00:00';

@@ -11,7 +11,8 @@ class VodsDAO extends AbstractDAO
     public function getLastVodOfStreamer(Streamer $streamer): Vod
     {
         return $this->dm->find(new Vod())
-                ->where(new Condition(['streamer_id', $streamer->id, '=']))
-                ->orderDesc('uploadDate')->one();
+            ->where(new Condition(['streamer_id', $streamer->id, '=']))
+            ->orderDesc('uploadDate')->one()
+        ;
     }
 }

@@ -2,14 +2,15 @@
 
 namespace TwitchWatcher\Data;
 
-use DomainException;
-
 /**
- * Represents an arbitrary condition
+ * Represents an arbitrary condition.
  */
 class Condition
 {
-    protected string $operator, $leftOperand, $rightOperand;
+    protected string $operator;
+    protected string $leftOperand;
+    protected string $rightOperand;
+
     public function __construct(private array|string $conds)
     {
         if (is_string($conds)) {
@@ -20,13 +21,13 @@ class Condition
                 $this->setOperator($matches[2]);
                 $this->rightOperand = $matches[3];
             } else {
-                throw new \InvalidArgumentException("Wrong format of condition string!");
+                throw new \InvalidArgumentException('Wrong format of condition string!');
             }
         } else {
-            if (count($conds) != 3) {
-                throw new \InvalidArgumentException("Wrong conditionals array");
+            if (3 != count($conds)) {
+                throw new \InvalidArgumentException('Wrong conditionals array');
             }
-            #TODO Добавить проверку операндов перед присваиванием
+            // TODO Добавить проверку операндов перед присваиванием
             $this->leftOperand = $conds[0];
             $this->rightOperand = $conds[1];
             $this->setOperator($conds[2]);
@@ -38,16 +39,17 @@ class Condition
         if (in_array($operator, ['>', '<', '!=', '='])) {
             $this->operator = $operator;
         } else {
-            throw new \InvalidArgumentException("Invalid operator $operator, only '>', '<', '!=', '=' are prohibited");
+            throw new \InvalidArgumentException("Invalid operator {$operator}, only '>', '<', '!=', '=' are prohibited");
         }
     }
 
     public function __get($prop)
     {
-        if (isset($this->$prop)) {
-            return $this->$prop;
-        } else {
-            throw new DomainException("No such property $prop in class " . self::class . ".");
+        if (isset($this->{$prop})) {
+            return $this->{$prop};
         }
+
+        throw new \DomainException("No such property {$prop} in class " . self::class . '.');
+
     }
 }

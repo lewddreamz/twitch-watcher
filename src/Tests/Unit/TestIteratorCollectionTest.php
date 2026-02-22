@@ -1,4 +1,5 @@
 <?php
+
 namespace TwitchWatcher\Tests\Unit;
 
 use InvalidArgumentException;
@@ -6,18 +7,23 @@ use PHPUnit\Framework\TestCase;
 use TwitchWatcher\Models\ModelInterface;
 use TwitchWatcher\Models\Streamer;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class TestIteratorCollectionTest extends TestCase
 {
-
     public $collection;
     public $foo;
     public array $stubs;
-    
+
     public function __construct(string $name)
     {
         parent::__construct($name);
         $this->createStubs();
     }
+
     public function setUp(): void
     {
         $this->collection = new TestIteratorCollection();
@@ -31,8 +37,7 @@ class TestIteratorCollectionTest extends TestCase
     private function createStubs(): void
     {
         $stubs = [];
-        for ($i = 0; $i < 10; $i++)
-        {
+        for ($i = 0; $i < 10; ++$i) {
             $stubs[$i] = $this->createStub(ModelInterface::class);
             $stubs[$i]->id = $i;
         }
@@ -63,15 +68,15 @@ class TestIteratorCollectionTest extends TestCase
         $this->collection->add($stub3 = $this->createStub(ModelInterface::class));
         $this->assertSame($this->collection->current(), $this->stubs[0]);
     }
-/*TODO
-public function testAllowChildrenFalse()
-public function testAllowChildrenTrue()
-*/
+    /*TODO
+    public function testAllowChildrenFalse()
+    public function testAllowChildrenTrue()
+    */
 
     public function testKey()
     {
         $this->assertEquals(0, $this->collection->key());
-        foreach($this->collection as $el) {
+        foreach ($this->collection as $el) {
             is_null($el);
         }
         $this->assertEquals(10, $this->collection->key());
@@ -82,26 +87,28 @@ public function testAllowChildrenTrue()
         $this->assertEquals(0, $this->collection->key());
         $this->collection->next();
         $this->assertEquals(1, $this->collection->key());
-        for ($i = 1; $i < 10; $i++) {
+        for ($i = 1; $i < 10; ++$i) {
             $this->collection->next();
         }
         $this->assertEquals(10, $this->collection->key());
     }
+
     public function testRewind()
     {
-        foreach($this->collection as $el) {
+        foreach ($this->collection as $el) {
             is_null($el);
         }
         $this->assertEquals(10, $this->collection->key());
         $this->collection->rewind();
         $this->assertEquals(0, $this->collection->key());
     }
+
     public function testValid()
     {
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $this->assertTrue($this->collection->valid());
             $this->collection->next();
         }
-        $this->assertFalse($this->collection->valid());        
+        $this->assertFalse($this->collection->valid());
     }
 }

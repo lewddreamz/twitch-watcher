@@ -9,16 +9,17 @@ use TwitchWatcher\Models\ModelInterface;
 
 abstract class AbstractCollection implements ModelCollectionInterface
 {
-    const ASSOC = 0;
-    const ARRAY = 1;
+    public const ASSOC = 0;
+    public const ARRAY = 1;
     protected array $items = [];
+
     /**
-     * Класс элемента коллекции
-     * @var 
+     * Класс элемента коллекции.
      */
     protected string $type;
 
     protected bool $allowChildren = false;
+
     public function add(ModelInterface $item): true
     {
         if (!$this->allowChildren && ($item::class !== $this->type)) {
@@ -28,8 +29,10 @@ abstract class AbstractCollection implements ModelCollectionInterface
             throw new \InvalidArgumentException("This collection accepts only instances of {$this->type} and its descendats.");
         }
         $this->items[] = $item;
+
         return true;
     }
+
     public function fill(array $values): true
     {
         foreach ($values as $value) {
@@ -37,6 +40,7 @@ abstract class AbstractCollection implements ModelCollectionInterface
             $obj->fill($value);
             $this->add($obj);
         }
+
         return true;
     }
 
@@ -44,67 +48,75 @@ abstract class AbstractCollection implements ModelCollectionInterface
     {
         $col = new static();
         $col->fill($values);
+
         return $col;
     }
 
-    #TODO сделать $items ассоциативным массивом вида id => object
-    #для доступа по хэшу, тогда эту 
-    public function getItem(int $id): ModelInterface|false
+    // TODO сделать $items ассоциативным массивом вида id => object
+    // для доступа по хэшу, тогда эту
+    public function getItem(int $id): false|ModelInterface
     {
         $filtered = array_filter($this->items, fn($el) => $el->id == $id);
         if (count($filtered) > 1) {
-            throw new \LogicException("Collection contains non-unique members");
+            throw new \LogicException('Collection contains non-unique members');
         }
         if (!empty($filtered)) {
             return $filtered[0];
-        } else {
-            return false;
         }
+
+        return false;
+
     }
+
     public function getItems(?Condition $condition = null): array
     {
         if (is_null($condition)) {
             return $this->items;
-        } else {
-            return ($this->filter($condition))->getItems();
         }
+
+        return $this->filter($condition)->getItems();
+
     }
 
     /**
-     * Returns new Collection with elements, that apply to condition
-     * @param \TwitchWatcher\Data\Condition $condition
-     * @return \TwitchWatcher\Collections\ModelCollectionInterface
+     * Returns new Collection with elements, that apply to condition.
      */
     public function filter(Condition $condition): ModelCollectionInterface
     {
-        //TODO
-        //так в тупую не сработает, нужно учитывать типы операндов (строка, число, дата)
-        $filtered = array_filter($this->items, function($item) use ($condition) {
+        // TODO
+        // так в тупую не сработает, нужно учитывать типы операндов (строка, число, дата)
+        $filtered = array_filter($this->items, function ($item) use ($condition) {
             $evalStr = 'return $item->' . "{$condition->leftOperand} {$condition->operator} " . '$condition->rightOperand;';
             $ret = eval($evalStr);
+
             return $ret;
         });
         $collection = new static();
-        foreach($filtered as $el) {
+        foreach ($filtered as $el) {
             $collection->add($el);
         }
+
         return $collection;
     }
-    public function getRawAttrs(string|array $attrs, $mode = self::ASSOC): array
+
+    public function getRawAttrs(array|string $attrs, $mode = self::ASSOC): array
     {
         if (is_string($attrs)) {
             $attrs = [$attrs];
         }
         $ret = [];
         foreach ($attrs as $attr) {
-            switch($mode) {
-                case (self::ASSOC):
-                    $ret["$attr"] = $attr;
+            switch ($mode) {
+                case self::ASSOC:
+                    $ret["{$attr}"] = $attr;
+
                     break;
-                case (self::ARRAY):
+
+                case self::ARRAY:
                     $ret[] = $attr;
             }
         }
+
         return $ret;
     }
 
@@ -115,11 +127,11 @@ abstract class AbstractCollection implements ModelCollectionInterface
 
     public function merge(ModelCollectionInterface $collection): ModelCollectionInterface
     {
-        #TODO set get unset
+        // TODO set get unset
         $ids1 = $this->getRawAttrs('id', self::ARRAY);
         $ids2 = $collection->getRawAttrs('id', self::ARRAY);
         if (!empty($intersect = array_intersect($ids1, $ids2))) {
-            foreach($intersect as $id) {
+            foreach ($intersect as $id) {
                 $this->set($id, $collection->get($id));
                 $collection->unset($id);
             }

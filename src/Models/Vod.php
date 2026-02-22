@@ -3,13 +3,12 @@
 namespace TwitchWatcher\Models;
 
 class Vod extends PersistableModel
-
 {
     protected static string $table = 'vods';
 
     /*'name' VARCHAR NOT NULL,
             'description' VARCHAR NOT NULL,
-            'uploadDate' DATETIME NOT NULL, 
+            'uploadDate' DATETIME NOT NULL,
             'twitch_id' VARCHAR NOT NULL,
             'url' VARCHAR NOT NULL,
             'streamer_id
@@ -19,10 +18,10 @@ class Vod extends PersistableModel
         'uploadDate',
         'twitch_id',
         'url',
-        'streamer_id'
+        'streamer_id',
     ];
-    #TODO свои атрибуты
-    //#[\Property]
+    // TODO свои атрибуты
+    // #[\Property]
     public string $name;
     public string $description;
     public string $uploadDate;

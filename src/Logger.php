@@ -1,19 +1,19 @@
 <?php
-declare(strict_types= 1);
+
+declare(strict_types=1);
 
 namespace TwitchWatcher;
 
-use InvalidArgumentException;
 use TwitchWatcher\App\Application;
 use TwitchWatcher\App\Config;
-use TwitchWatcher\Exceptions\ConfigurationException;
+
 class Logger
 {
-    private const APP_LOG_DEFAULT = "app.log";
-    private const ERROR_LOG_DEFAULT = "error.log";
+    private const APP_LOG_DEFAULT = 'app.log';
+    private const ERROR_LOG_DEFAULT = 'error.log';
 
     // public enum LogLevels:
-    
+
 
     private string $log_dir;
     private ?string $appLog;
@@ -21,6 +21,7 @@ class Logger
     private $appLogFH;
     private bool $verbose = false;
     private bool $debug = false;
+
     public function __construct(Config $config)
     {
         if (null !== $config) {
@@ -33,7 +34,7 @@ class Logger
 
     public function setConfig(Config $config): void
     {
-        if (($config->has('logger'))) {
+        if ($config->has('logger')) {
             $config = $config->logger;
         } else {
             throw new \RuntimeException('Не задана конфигурация логера');
@@ -42,7 +43,7 @@ class Logger
         if (!$config->has('log_dir')) {
             throw new \RuntimeException('Не задана директория логов');
         }
-        #TODO wtf???
+        // TODO wtf???
         $main = Application::config();
         $this->log_dir = $main->base_dir . DIRECTORY_SEPARATOR . $config->log_dir;
 
@@ -65,7 +66,7 @@ class Logger
         }
     }
 
-    // Решил не засирать сигнатуры этих шорткат методов параметром $verbose, 
+    // Решил не засирать сигнатуры этих шорткат методов параметром $verbose,
     // надо вербоз - вызывай log
     public function info(string $message): void
     {
@@ -88,25 +89,22 @@ class Logger
             $this->log($message, LogLevel::Debug);
         }
     }
-    #TODO annotation
+
+    // TODO annotation
     /**
-     * Summary of log
-     * @param string $message
-     * @param \TwitchWatcher\LogLevel $level
-     * @param bool $verbose
-     * @return void
+     * Summary of log.
      */
     public function log(string $message, LogLevel $level, bool $verbose = false): void
     {
-        
-        $target = match($level) {
+
+        $target = match ($level) {
             LogLevel::Info, LogLevel::Debug => $this->appLogFH,
             LogLevel::Warning, LogLevel::Error => $this->appLogFH,
         };
         $label = \strtoupper($level->name);
 
         $timestamp = (new \DateTime())->format('Y-m-d H:i:s');
-        $message = "$timestamp [$label] $message";
+        $message = "{$timestamp} [{$label}] {$message}";
 
         $this->writeToFile($message, $target);
 
@@ -118,9 +116,9 @@ class Logger
     private function writeToFile(string $message, $target): void
     {
         if (!is_resource($target)) {
-            throw new InvalidArgumentException('Аргумент $target в методе Logger->write() должен быть указателем на файл');
+            throw new \InvalidArgumentException('Аргумент $target в методе Logger->write() должен быть указателем на файл');
         }
-        
+
         fwrite($target, $message . PHP_EOL);
     }
 }
